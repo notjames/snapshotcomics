@@ -2,4 +2,5 @@ h1,h3
 {
   font: italic small-caps bold 1.2em cursive;
   text-align: center;
+  margin: 0 auto;
 }
