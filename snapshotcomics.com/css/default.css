@@ -1,6 +1,13 @@
-h1,h3
+h1
 {
-  font: italic small-caps bold 1.2em cursive;
+  font: italic small-caps bold 4em cursive;
+  text-align: center;
+  margin: 0 auto;
+}
+
+h3
+{
+  font: italic small-caps bold 2em cursive;
   text-align: center;
   margin: 0 auto;
 }
