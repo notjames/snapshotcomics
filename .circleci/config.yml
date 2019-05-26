@@ -1,12 +1,15 @@
 version: 2
 jobs:
   build:
+    machine: true
+      image: circleci/classic:201808-01
     steps:
       - checkout
       - setup_remote_docker:
           version: 18.06.0-ce
 
       - run: |
+          set +ex
           docker login -u $DOCKER_USER -p $DOCKER_PASS
           docker build -t $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH .
           docker push $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
@@ -17,6 +20,7 @@ jobs:
     steps:
       - checkout
       - run: |
+         set +ex
          docker run --restart unless-stopped -d -p 80:80 -p 443:443 -v $HOME/html:/var/www/snapshotcomics.com $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
 
          wget http://localhost/index.html
