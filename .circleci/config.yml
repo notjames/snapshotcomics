@@ -1,25 +1,36 @@
- version: 2
- jobs:
-   build:
-     machine: true
-     steps:
-       - checkout
-       - setup_remote_docker:
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - setup_remote_docker:
           version: 18.06.0-ce
 
-       - run: |
+      - run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASS
           docker build -t $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH .
-     docker:
-       - image: $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
-       - workdir: /var/tmp
-       - run: |
-          docker run --restart unless-stopped -d -p 80:80 -p 443:443 -v $HOME/html:/var/www/snapshotcomics.com $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
+          docker push $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
+  test:
+    docker:
+      - image: $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
+      - workdir: /var/tmp
+    steps:
+      - checkout
+      - run: |
+         docker run --restart unless-stopped -d -p 80:80 -p 443:443 -v $HOME/html:/var/www/snapshotcomics.com $DOCKER_USER/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
 
-          wget http://localhost/index.html
+         wget http://localhost/index.html
 
-          if ! diff -q index.html $HOME/html/index.html; then
-            echo >&2 'What is running on the server and what is in the repo do not match.'
-            return 1
-          fi
+         if ! diff -q index.html $HOME/html/index.html; then
+           echo >&2 'What is running on the server and what is in the repo do not match.'
+           return 1
+         fi
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
 
